@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  clerkId   String   @unique
+  firstname String?
+  lastname  String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  //relations
+  profile   Profile?
+}
+
+model Profile {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  aboutMe              String? // 🧠 Over Mij
+  whatILookFor         String? // 🎯 Wat Ik Zoek
+  strengthsAndStyle    String? // 🧩 Mijn Sterktes en Stijl
+  energyAndEnvironment String? // 🌀 Mijn Energie en Omgeving
+  backgroundStory      String? // 🎨 Mijn Verhaal of Achtergrond
+  collaborationStyle   String? // 💬 Hoe Werk Ik Graag Samen
+  otherDetails         String? // 📎 Wat Je Nog Meer Over Mij Mag Weten
+  contactPreferences   String? // 🤝 Contact of Volgende Stap
+
+  media Media[] // 💡 Extra: video/audio/etc.
+}
+
+model Media {
+  id          String    @id @default(cuid())
+  profile     Profile   @relation(fields: [profileId], references: [id])
+  profileId   String
+  type        MediaType
+  url         String
+  description String?
+  createdAt   DateTime  @default(now())
+}
+
+enum MediaType {
+  VIDEO
+  AUDIO
+  IMAGE
+  DOCUMENT
+  OTHER
+}
